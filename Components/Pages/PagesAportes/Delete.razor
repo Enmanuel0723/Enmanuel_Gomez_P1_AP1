@@ -1,0 +1,55 @@
+﻿@page "/Aportes/Delete/{AportesId:int}"
+@rendermode InteractiveServer
+@inject AportesServices AportesServices
+@inject NavigationManager Navigation
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header">
+            <h2 class="card-title">Eliminar Aporte</h2>
+        </div>
+        <div class="card-body">
+            <h6>Aporte:</h6>
+            <ul>
+                <li>Id: @Aporte.AportesId</li>
+                <li>Persona Id: @Aporte.PersonaId</li>
+                <li>Fecha: @Aporte.Fecha</li>
+                <li>Monto: @Aporte.Monto</li>
+            </ul>
+
+            <h6>Detalles del aporte:</h6>
+            <div class="border border-success p-3 mt-3">
+                <ul>
+                    @foreach (var detalle in Aporte.AportesDetalle)
+                    {
+                        <li>Detalle Id: @detalle.DetalleId</li>
+                        <li>Aporte Id: @detalle.AportesId</li>
+                        <li>Persona Id: @detalle.PersonaId</li>
+                        <li>Monto: @detalle.ValorAportado</li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="/Aportes/Index" class="btn btn-outline-primary bi bi-arrow-left"></a>
+            <button type="button" @onclick="Eliminar" class="btn btn-outline-danger bi bi-trash"> Eliminar</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int AportesId { get; set; }
+    public Aportes Aporte { get; set; } = new Aportes();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Aporte = await AportesServices.Buscar(AportesId);
+    }
+
+    public async Task Eliminar()
+    {
+        // await AportesServices.Delete(Aporte.AportesId);
+        Navigation.NavigateTo("/Aportes/Index");
+    }
+}
