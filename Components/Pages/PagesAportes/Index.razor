@@ -107,11 +107,11 @@
             }
         }
         else
-            ListaAportes = await aporteService.Listar(p => p.CobroId > 0);
+            ListaAportes = await aporteService.Listar(p => p.AporteId > 0);
     }
     private async Task Restablecer()
     {
-        ListaAportes = await aportesService.Listar(e => e.CobroId > 0);
+        ListaAportes = await aportesService.Listar(e => e.AporteId > 0);
         Filtro = string.Empty;
         ValorFiltro = string.Empty;
     }
