@@ -1,0 +1,117 @@
+﻿@page "/Aportes/Index"
+@rendermode InteractiveServer
+@inject AportesServices aporteService
+@inject NavigationManager navigationManager
+
+<PageTitle>Index</PageTitle>
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header space-between">
+            <h5 class="card-title">Registro Aportes</h5>
+            <a href="/Aportes/Create" class="btn btn-success"> <span class="bi bi-plus-square mt-3"></span> Crear</a>
+
+        </div>
+
+        <div class="card-body">
+            @*labels*@
+            <div class="row">
+                @*Filtrar por*@
+                <div class="col-3">
+                    <label class="col-form-label"><strong>Filtrar por</strong></label>
+                </div>
+
+                @*ValorFiltro*@
+                <div class="col-4">
+                    <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
+                </div>
+            </div>
+
+            @*Inputs y botones*@
+            <div class="row align-items-center">
+                @*filtro*@
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="Filtro">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Monto">Monto</option>
+                    </InputSelect>
+                </div>
+
+                @*Busqueda*@
+                <div class="col-4">
+                    <div class="input-group">
+                        <input class="form-control" @bind="ValorFiltro" placeholder="Buscar" />
+                        <button type="button" class="btn btn-outline-success bi bi-search" @onclick="Buscar"></button>
+                    </div>
+                </div>
+            </div>
+
+            <table class="table table-hover table-bordered text-center">
+                <thead class="table  table-striped text-black">
+                    <tr>
+                        <th>AportesId</th>
+                        <th>Fecha</th>
+                        <th>Persona</th>
+                        <th>Monto</th>
+                        <th>Ver</th>
+                        <th>Modificar</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var aporte in ListAportes)
+                    {
+                        <tr>
+                            <td>@aporte.AportesId</td>
+                            <td>@aporte.Fecha</td>
+                            <td>@aporte.Monto</td>
+                            <td class="text-center">
+                                <a href="/Monto/Details/@aporte.AporteId" class="btn btn-outline-primary bi bi-eye "></a>
+                            </td>
+                            <td class="text-center">
+                                <a href="/Monto/Edit/@aporte.AporteId" class="btn btn-outline-info bi bi-pencil-square"></a>
+                            </td>
+                            <td class="text-center">
+                                <a href="/Monto/Delete/@aporte.CobroId" class="btn btn-outline-danger bi bi-trash"></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer space-between">
+            <label>Cantidad: @ListAportes.Count()</label>
+            <label>Total: @ListAportes.Sum(p => p.Monto)</label>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    public List<Aportes> ListaAportes { get; set; } = new List<Aportes>();
+
+    public string Filtro { get; set; } = string.Empty;
+    public string ValorFiltro { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaAportes = await AporteService.Listar(c => c.AporteId > 0);
+    }
+
+    private async Task Buscar()
+    {
+        if (ValorFiltro.Trim() != "")
+        {
+            if (Filtro == "Deudor")
+            {
+                ListaAportes = await aporteService.Listar(p => p.Nombres.ToLower().Contains(ValorFiltro.ToLower()));
+            }
+        }
+        else
+            ListaAportes = await aporteService.Listar(p => p.CobroId > 0);
+    }
+    private async Task Restablecer()
+    {
+        ListaAportes = await aportesService.Listar(e => e.CobroId > 0);
+        Filtro = string.Empty;
+        ValorFiltro = string.Empty;
+    }
