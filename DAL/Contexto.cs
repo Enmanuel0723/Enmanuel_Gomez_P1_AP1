@@ -3,7 +3,6 @@
     using Models;
     using Microsoft.EntityFrameworkCore;
 
-    namespace Ap1_P1.DAL;
     public class Contexto(DbContextOptions<Contexto> options) : DbContext(options)
     {
         public class Context
