@@ -1,0 +1,67 @@
+﻿// Registro de Aportes para 1º Parcial - Programación Aplicada I
+@page "/Aportes/Edit/{AporteId:int}"
+@inject AporteServices aportesService
+@inject PersonaServices personasService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Registro de Aportes</PageTitle>
+<EditForm Model="Aporte" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h5 class="card-title">Registro de Aportes</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label"><strong>Fecha</strong></label>
+                    <InputDate class="form-control" @bind-Value="Aporte.Fecha"></InputDate>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><strong>Persona</strong></label>
+                    <InputSelect class="form-control" @bind-Value="Aporte.PersonaId">
+                        <option value="" disabled>Seleccione</option>
+                        @foreach (var persona in ListaPersonas)
+                        {
+                            <option value="@persona.PersonaId">@persona.Nombre</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><strong>Observación</strong></label>
+                    <InputText class="form-control" @bind-Value="Aporte.Observacion" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><strong>Monto</strong></label>
+                    <InputNumber class="form-control" @bind-Value="Aporte.Monto" />
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <button type="button" class="btn btn-secondary" @onclick="Nuevo">Nuevo</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    public Aporte Aporte { get; set; } = new Aporte();
+    public List<Persona> ListaPersonas { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaPersonas = await personasService.ObtenerPersonas();
+    }
+
+    public async Task Guardar()
+    {
+        var resultado = await aportesService.Guardar(Aporte);
+        navigationManager.NavigateTo("/Aportes/Consulta");
+    }
+
+    public void Nuevo() => Aporte = new Aporte();
+    public async Task Eliminar() => await aportesService.Eliminar(Aporte.AporteId);
+}

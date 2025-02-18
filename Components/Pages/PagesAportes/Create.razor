@@ -1,0 +1,91 @@
+﻿@page "/Aportes/Create"
+@rendermode InteractiveServer
+@inject AportesServices aporteService
+@inject PersonaServices personasService
+@inject NavigationManager navigationManager
+
+<PageTitle>Create</PageTitle>
+<EditForm Model="Aporte" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <Toasts class="p-3" Messages="MensajeToast" Placement="ToastsPlacement.TopRight" />
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h5 class="card-title">Crear Aporte</h5>
+            </div>
+
+            <div class="card-body">
+                @* AporteId *@
+                <div class="mb-3">
+                    <label class="form-label"><strong>AporteId</strong></label>
+                    <InputNumber class="form-control" @bind-Value="Aporte.AporteId"></InputNumber>
+                </div>
+
+                @* Fecha *@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Fecha</strong></label>
+                    <InputDate class="form-control" @bind-Value="Aporte.Fecha"></InputDate>
+                </div>
+
+                @* Persona *@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Persona</strong></label>
+                    <InputSelect class="form-control form-select" @bind-Value="Aporte.PersonaId">
+                        <option value="0" selected disabled>Elija una opción</option>
+                        @foreach (var persona in ListaPersonas)
+                        {
+                            <option value="@persona.PersonaId">@persona.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="(() => Aporte.PersonaId)" />
+                </div>
+
+                @* Monto *@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Monto</strong></label>
+                    <InputNumber class="form-control" @bind-Value="Aporte.Monto"></InputNumber>
+                    <ValidationMessage For="(() => Aporte.Monto)" />
+                </div>
+            </div>
+
+            <div class="card-footer text-center mt-2">
+                <a href="/Aportes/Index" class="btn btn-secondary"> <span class="bi bi-arrow-left"></span> Volver</a>
+                <button type="submit" class="btn btn-primary bi bi-floppy"> Guardar</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    public Aportes Aporte { get; set; } = new Aportes();
+    public List<Personas> ListaPersonas { get; set; } = [];
+    List<ToastMessage> MensajeToast = new List<ToastMessage>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaPersonas = await personasService.Listar(p => true);
+    }
+
+    public async Task Guardar()
+    {
+        try
+        {
+            var paso = await aporteService.Guardar(Aporte);
+
+            if (paso)
+            {
+                MensajeToast.Add(new ToastMessage { Type = ToastType.Success, Message = "Se creó correctamente" });
+                navigationManager.NavigateTo("/Aportes/Index");
+            }
+            else
+            {
+                MensajeToast.Add(new ToastMessage { Type = ToastType.Danger, Message = "No se ha creado correctamente" });
+            }
+        }
+        catch (Exception ex)
+        {
+            MensajeToast.Add(new ToastMessage { Type = ToastType.Danger, Message = $"Error al guardar: {ex.Message}" });
+        }
+    }
+}
